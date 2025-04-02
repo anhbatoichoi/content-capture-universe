@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -13,13 +12,16 @@ import ContentView from './components/ContentView';
 import ImagesView from './components/ImagesView';
 import SettingsView from './components/SettingsView';
 import SidebarNav from './components/SidebarNav';
+import { htmlToMarkdown } from './utils/markdownConverter';
 
 interface ExtractedContent {
   url: string;
   title: string;
   content: string;
+  rawText?: string;
   images: string[];
   timestamp: string;
+  source?: string;
 }
 
 const App = () => {
@@ -45,10 +47,19 @@ const App = () => {
       const response = await chrome.tabs.sendMessage(activeTab.id, { action: 'extractContent' });
       
       if (response) {
+        // If the content comes from tiptap, convert HTML to markdown
+        if (response.source === 'tiptap') {
+          response.formattedContent = htmlToMarkdown(response.content);
+          // Keep the original HTML too
+          response.htmlContent = response.content;
+          // Update the content property to contain the markdown
+          response.content = response.formattedContent;
+        }
+        
         setContent(response);
         toast({
           title: "Content extracted!",
-          description: `Found ${response.images.length} images and ${response.content.split(' ').length} words`,
+          description: `Found ${response.images.length} images and extracted content from ${response.source === 'tiptap' ? 'tiptap editor' : 'standard article'}`,
         });
       } else {
         throw new Error('No response from content script');
@@ -74,15 +85,15 @@ const App = () => {
         
         if (activeTab.id && activeTab.url && !activeTab.url.startsWith('chrome://')) {
           // Try to send a test message to see if content script is loaded
-          chrome.tabs.sendMessage(activeTab.id, { action: 'ping' }, response => {
-            if (chrome.runtime.lastError) {
-              // Content script not loaded, we need to reload the page or inject it
-              console.log('Content script not loaded yet');
-            } else {
+          try {
+            const response = await chrome.tabs.sendMessage(activeTab.id, { action: 'ping' });
+            if (response?.status === 'ok') {
               // Content script is loaded, we can extract content
               extractContent();
             }
-          });
+          } catch (error) {
+            console.log('Content script not loaded yet');
+          }
         }
       } catch (error) {
         console.error('Error checking content script:', error);

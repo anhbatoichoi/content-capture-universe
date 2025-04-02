@@ -1,6 +1,23 @@
 
 // This script runs in the context of the webpage
 function extractContent() {
+  // Check for tiptap div first
+  const tiptapDiv = document.querySelector('.tiptap');
+  
+  if (tiptapDiv) {
+    // If tiptap div exists, extract its content directly
+    return {
+      url: window.location.href,
+      title: document.title,
+      content: tiptapDiv.innerHTML, // Send the raw HTML for conversion in the popup
+      rawText: tiptapDiv.textContent, // Plain text as fallback
+      images: Array.from(tiptapDiv.querySelectorAll('img')).map(img => img.src).filter(src => src && !src.startsWith('data:')),
+      timestamp: new Date().toISOString(),
+      source: 'tiptap'
+    };
+  }
+  
+  // Fallback to default selectors if tiptap not found
   // Default selectors that work for common article layouts
   const defaultSelectors = {
     article: 'article, .article, .post, [class*="article"], [class*="post"], main',
@@ -47,7 +64,8 @@ function extractContent() {
     title,
     content,
     images,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    source: 'standard'
   };
 }
 
@@ -56,6 +74,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'extractContent') {
     const extractedContent = extractContent();
     sendResponse(extractedContent);
+  } else if (request.action === 'ping') {
+    sendResponse({ status: 'ok' });
   }
   // This return is required to use sendResponse asynchronously
   return true;
