@@ -12,6 +12,7 @@ import Header from './components/Header';
 import ContentView from './components/ContentView';
 import ImagesView from './components/ImagesView';
 import SettingsView from './components/SettingsView';
+import SidebarNav from './components/SidebarNav';
 
 interface ExtractedContent {
   url: string;
@@ -25,6 +26,7 @@ const App = () => {
   const [activeTab, setActiveTab] = useState('text');
   const [isExtracting, setIsExtracting] = useState(false);
   const [content, setContent] = useState<ExtractedContent | null>(null);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { toast } = useToast();
 
   const extractContent = async () => {
@@ -91,57 +93,49 @@ const App = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-full">
-      <Header />
+    <div className="flex h-full">
+      <SidebarNav 
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isCollapsed={isSidebarCollapsed}
+        setIsCollapsed={setIsSidebarCollapsed}
+      />
       
-      <main className="flex-1 p-4 overflow-hidden flex flex-col">
-        <Button 
-          onClick={extractContent} 
-          className="w-full mb-4 gap-2" 
-          size="lg"
-          disabled={isExtracting}
-        >
-          {isExtracting ? (
-            <>Loading<span className="animate-pulse">...</span></>
-          ) : (
-            <>
-              <Zap className="w-4 h-4" />
-              Extract Content
-            </>
-          )}
-        </Button>
+      <div className="flex flex-col flex-1 h-full overflow-hidden">
+        <Header />
+        
+        <main className="flex-1 p-4 overflow-hidden flex flex-col">
+          <Button 
+            onClick={extractContent} 
+            className="w-full mb-4 gap-2" 
+            size="lg"
+            disabled={isExtracting}
+          >
+            {isExtracting ? (
+              <>Loading<span className="animate-pulse">...</span></>
+            ) : (
+              <>
+                <Zap className="w-4 h-4" />
+                Extract Content
+              </>
+            )}
+          </Button>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid grid-cols-3 mb-4">
-            <TabsTrigger value="text" className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              <span>Text</span>
-            </TabsTrigger>
-            <TabsTrigger value="images" className="flex items-center gap-2">
-              <Image className="w-4 h-4" />
-              <span>Images</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              <span>Settings</span>
-            </TabsTrigger>
-          </TabsList>
-          
           <div className="flex-1 overflow-hidden">
-            <TabsContent value="text" className="h-full">
+            {activeTab === "text" && (
               <ContentView content={content} />
-            </TabsContent>
+            )}
             
-            <TabsContent value="images" className="h-full">
+            {activeTab === "images" && (
               <ImagesView images={content?.images || []} />
-            </TabsContent>
+            )}
             
-            <TabsContent value="settings" className="h-full">
+            {activeTab === "settings" && (
               <SettingsView />
-            </TabsContent>
+            )}
           </div>
-        </Tabs>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };
