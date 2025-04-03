@@ -24,7 +24,7 @@ const SidebarNav = ({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }: Si
       isCollapsed ? "w-16" : "w-56"
     )}>
       <div className="flex items-center justify-between p-4 border-b border-border">
-        {!isCollapsed && <h2 className="text-sm font-medium text-gti-gold">GTI Capture</h2>}
+        {!isCollapsed && <h2 className="text-sm font-medium text-secondary">GTI Capture</h2>}
         <Button 
           variant="ghost" 
           size="icon" 
