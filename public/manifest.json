@@ -4,10 +4,9 @@
   "name": "GTI Content Capture",
   "version": "1.0.0",
   "description": "Extract and save article content, text, and images from websites",
-  "permissions": ["activeTab", "storage", "scripting"],
+  "permissions": ["activeTab", "storage", "scripting", "sidePanel"],
   "host_permissions": ["<all_urls>"],
   "action": {
-    "default_popup": "index.html",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -28,5 +27,8 @@
       "matches": ["<all_urls>"],
       "js": ["src/content.js"]
     }
-  ]
+  ],
+  "side_panel": {
+    "default_path": "index.html"
+  }
 }

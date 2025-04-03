@@ -31,4 +31,15 @@ declare namespace chrome {
   namespace scripting {
     function executeScript(details: { target: { tabId: number }, files: string[] }): Promise<any>;
   }
+
+  namespace action {
+    const onClicked: {
+      addListener(callback: (tab: chrome.tabs.Tab) => void): void;
+    };
+  }
+
+  namespace sidePanel {
+    function open(options?: { tabId?: number }): Promise<void>;
+    function setOptions(options: { enabled: boolean, path?: string }): Promise<void>;
+  }
 }

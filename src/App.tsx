@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -77,7 +78,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    // Check if we can extract content when popup opens
+    // Check if we can extract content when side panel opens
     const checkIfContentScriptLoaded = async () => {
       try {
         const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -104,7 +105,7 @@ const App = () => {
   }, []);
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-screen w-full">
       <SidebarNav 
         activeTab={activeTab}
         setActiveTab={setActiveTab}

@@ -21,10 +21,10 @@ const SidebarNav = ({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }: Si
   return (
     <div className={cn(
       "h-full flex flex-col bg-card border-r border-border transition-all duration-300",
-      isCollapsed ? "w-16" : "w-56"
+      isCollapsed ? "w-14" : "w-48"
     )}>
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        {!isCollapsed && <h2 className="text-sm font-medium text-secondary">GTI Capture</h2>}
+      <div className="flex items-center justify-between p-3 border-b border-border">
+        {!isCollapsed && <h2 className="text-xs font-medium text-secondary">GTI Capture</h2>}
         <Button 
           variant="ghost" 
           size="icon" 
@@ -35,8 +35,8 @@ const SidebarNav = ({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }: Si
         </Button>
       </div>
       
-      <div className="flex-1 py-4 overflow-auto">
-        <nav className="space-y-2 px-2">
+      <div className="flex-1 py-3 overflow-auto">
+        <nav className="space-y-1 px-2">
           {navItems.map((item) => (
             <Button
               key={item.id}
@@ -54,7 +54,7 @@ const SidebarNav = ({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }: Si
         </nav>
       </div>
       
-      <div className="p-4 border-t border-border">
+      <div className="p-3 border-t border-border">
         <div className={cn(
           "text-xs text-muted-foreground",
           isCollapsed ? "hidden" : "block"
