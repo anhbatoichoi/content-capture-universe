@@ -1,36 +1,22 @@
 
 import { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, Image, Settings, Copy, Download, Zap } from "lucide-react";
+import { Zap } from "lucide-react";
 import Header from './components/Header';
 import ContentView from './components/ContentView';
 import ImagesView from './components/ImagesView';
 import SettingsView from './components/SettingsView';
 import SidebarNav from './components/SidebarNav';
-import { htmlToMarkdown } from './utils/markdownConverter';
+import { ExtractionProvider, useExtraction } from './contexts/ExtractionContext';
 
-interface ExtractedContent {
-  url: string;
-  title: string;
-  content: string;
-  rawText?: string;
-  images: string[];
-  timestamp: string;
-  source?: string;
-}
-
-const App = () => {
+const AppContent = () => {
   const [activeTab, setActiveTab] = useState('text');
   const [isExtracting, setIsExtracting] = useState(false);
-  const [content, setContent] = useState<ExtractedContent | null>(null);
+  const [content, setContent] = useState<any | null>(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const { toast } = useToast();
+  const { addExtraction } = useExtraction();
 
   const extractContent = async () => {
     try {
@@ -48,19 +34,18 @@ const App = () => {
       const response = await chrome.tabs.sendMessage(activeTab.id, { action: 'extractContent' });
       
       if (response) {
-        // If the content comes from tiptap, convert HTML to markdown
-        if (response.source === 'tiptap') {
-          response.formattedContent = htmlToMarkdown(response.content);
-          // Keep the original HTML too
-          response.htmlContent = response.content;
-          // Update the content property to contain the markdown
-          response.content = response.formattedContent;
-        }
-        
         setContent(response);
+        
+        // Send to extraction service
+        await addExtraction(
+          response.url || activeTab.url || "",
+          response.title || activeTab.title || "Untitled",
+          response.source
+        );
+        
         toast({
-          title: "Content extracted!",
-          description: `Found ${response.images.length} images and extracted content from ${response.source === 'tiptap' ? 'tiptap editor' : 'standard article'}`,
+          title: "Extraction started",
+          description: "Your content is being processed and will be available soon.",
         });
       } else {
         throw new Error('No response from content script');
@@ -149,6 +134,14 @@ const App = () => {
         </main>
       </div>
     </div>
+  );
+};
+
+const App = () => {
+  return (
+    <ExtractionProvider>
+      <AppContent />
+    </ExtractionProvider>
   );
 };
 

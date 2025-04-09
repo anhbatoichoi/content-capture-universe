@@ -1,10 +1,12 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area"; 
 import { Copy, Download, Code } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useExtraction } from '@/contexts/ExtractionContext';
+import ExtractionList from './ExtractionList';
+import ExtractionView from './ExtractionView';
 
 interface ContentViewProps {
   content: {
@@ -21,6 +23,12 @@ interface ContentViewProps {
 const ContentView = ({ content }: ContentViewProps) => {
   const { toast } = useToast();
   const [showMarkdown, setShowMarkdown] = useState(true);
+  const { selectedExtraction } = useExtraction();
+  
+  // Show extraction view if an extraction is selected
+  if (selectedExtraction) {
+    return <ExtractionView />;
+  }
   
   const copyContent = () => {
     if (!content) return;
@@ -65,16 +73,9 @@ const ContentView = ({ content }: ContentViewProps) => {
     setShowMarkdown(!showMarkdown);
   };
 
+  // Otherwise show the extraction list or content
   if (!content) {
-    return (
-      <Card className="h-full flex items-center justify-center text-center bg-muted/50">
-        <CardContent>
-          <p className="text-muted-foreground">
-            Click "Extract Content" to capture text from the current page
-          </p>
-        </CardContent>
-      </Card>
-    );
+    return <ExtractionList />;
   }
 
   // Determine what content to display

@@ -23,8 +23,9 @@ declare namespace chrome {
 
   namespace storage {
     namespace local {
-      function get(keys: string | string[] | null): Promise<{ [key: string]: any }>;
+      function get(keys: string | string[] | null | undefined): Promise<{ [key: string]: any }>;
       function set(items: { [key: string]: any }): Promise<void>;
+      function remove(keys: string | string[]): Promise<void>;
     }
   }
 
