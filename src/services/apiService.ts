@@ -1,4 +1,3 @@
-
 interface ExtractContentRequest {
   url: string;
   title?: string;
@@ -17,6 +16,22 @@ interface CheckStatusResponse {
   status: "pending" | "done" | "failed";
   content?: string;
   error?: string;
+}
+
+interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: number;
+}
+
+interface ChatRequest {
+  message: string;
+  conversationId?: string;
+}
+
+interface ChatResponse {
+  message: string;
+  conversationId: string;
 }
 
 // This would be your actual API endpoint
@@ -73,5 +88,41 @@ export const apiService = {
       console.error("Error checking status:", error);
       throw error;
     }
+  },
+
+  sendChatMessage: async (data: ChatRequest): Promise<ChatResponse> => {
+    try {
+      console.log("Sending chat message:", data);
+      
+      // Simulate API call delay
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            message: getAIResponse(data.message),
+            conversationId: data.conversationId || `conv_${Date.now()}`
+          });
+        }, 1200);
+      });
+    } catch (error) {
+      console.error("Error sending chat message:", error);
+      throw error;
+    }
   }
 };
+
+// Helper function to simulate AI responses
+function getAIResponse(message: string): string {
+  const lowercaseMsg = message.toLowerCase();
+  
+  if (lowercaseMsg.includes("hello") || lowercaseMsg.includes("hi")) {
+    return "Hello! How can I help you today?";
+  } else if (lowercaseMsg.includes("help")) {
+    return "I'm an AI assistant that can help you with content extraction and answer questions about the extracted content. What would you like to know?";
+  } else if (lowercaseMsg.includes("extract")) {
+    return "To extract content from a webpage, click the 'Extract Content' button at the top of the application. I can then help you analyze that content!";
+  } else if (lowercaseMsg.includes("thank")) {
+    return "You're welcome! Feel free to ask if you have any other questions.";
+  } else {
+    return "I understand you're asking about \"" + message + "\". Could you provide more details so I can better assist you?";
+  }
+}

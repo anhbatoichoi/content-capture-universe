@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { BookOpen, Image, Settings, PanelLeft, PanelRight } from "lucide-react";
+import { BookOpen, Image, Settings, PanelLeft, PanelRight, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface SidebarNavProps {
@@ -15,6 +15,7 @@ const SidebarNav = ({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }: Si
   const navItems = [
     { id: "text", label: "Text", icon: BookOpen },
     { id: "images", label: "Images", icon: Image },
+    { id: "chat", label: "Chat", icon: MessageSquare },
     { id: "settings", label: "Settings", icon: Settings },
   ];
 

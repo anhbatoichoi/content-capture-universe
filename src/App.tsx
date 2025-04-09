@@ -7,8 +7,10 @@ import Header from './components/Header';
 import ContentView from './components/ContentView';
 import ImagesView from './components/ImagesView';
 import SettingsView from './components/SettingsView';
+import ChatView from './components/ChatView';
 import SidebarNav from './components/SidebarNav';
 import { ExtractionProvider, useExtraction } from './contexts/ExtractionContext';
+import { ChatProvider } from './contexts/ChatContext';
 
 const AppContent = () => {
   const [activeTab, setActiveTab] = useState('text');
@@ -102,21 +104,23 @@ const AppContent = () => {
         <Header />
         
         <main className="flex-1 p-4 overflow-hidden flex flex-col">
-          <Button 
-            onClick={extractContent} 
-            className="w-full mb-4 gap-2" 
-            size="lg"
-            disabled={isExtracting}
-          >
-            {isExtracting ? (
-              <>Loading<span className="animate-pulse">...</span></>
-            ) : (
-              <>
-                <Zap className="w-4 h-4" />
-                Extract Content
-              </>
-            )}
-          </Button>
+          {activeTab !== "chat" && (
+            <Button 
+              onClick={extractContent} 
+              className="w-full mb-4 gap-2" 
+              size="lg"
+              disabled={isExtracting}
+            >
+              {isExtracting ? (
+                <>Loading<span className="animate-pulse">...</span></>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4" />
+                  Extract Content
+                </>
+              )}
+            </Button>
+          )}
 
           <div className="flex-1 overflow-hidden">
             {activeTab === "text" && (
@@ -125,6 +129,10 @@ const AppContent = () => {
             
             {activeTab === "images" && (
               <ImagesView images={content?.images || []} />
+            )}
+            
+            {activeTab === "chat" && (
+              <ChatView />
             )}
             
             {activeTab === "settings" && (
@@ -140,7 +148,9 @@ const AppContent = () => {
 const App = () => {
   return (
     <ExtractionProvider>
-      <AppContent />
+      <ChatProvider>
+        <AppContent />
+      </ChatProvider>
     </ExtractionProvider>
   );
 };
