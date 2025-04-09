@@ -11,6 +11,7 @@ const ExtractionView: React.FC = () => {
   const { selectedExtraction, setSelectedExtraction } = useExtraction();
   const { toast } = useToast();
 
+  // Safeguard against null selectedExtraction
   if (!selectedExtraction) {
     return null;
   }
@@ -32,7 +33,7 @@ const ExtractionView: React.FC = () => {
       
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${selectedExtraction.title.slice(0, 30).replace(/[^a-zA-Z0-9]/g, '_') || 'extracted_content'}.md`;
+      a.download = `${selectedExtraction.title?.slice(0, 30).replace(/[^a-zA-Z0-9]/g, '_') || 'extracted_content'}.md`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -57,7 +58,7 @@ const ExtractionView: React.FC = () => {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <CardTitle className="text-secondary text-lg">
-          {selectedExtraction.title}
+          {selectedExtraction.title || 'Untitled Extraction'}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0">

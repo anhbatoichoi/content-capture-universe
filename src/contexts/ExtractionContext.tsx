@@ -46,7 +46,11 @@ export const ExtractionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           setExtractions(
             parsed.map((ext: any) => ({
               ...ext,
-              timestamp: new Date(ext.timestamp)
+              timestamp: new Date(ext.timestamp),
+              // Ensure all required fields have fallback values
+              id: ext.id || `fallback-${Date.now()}-${Math.random()}`,
+              status: ext.status || 'failed',
+              title: ext.title || 'Untitled Extraction'
             }))
           );
         }
@@ -109,9 +113,13 @@ export const ExtractionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     try {
       const response = await apiService.extractContent({ url, title, source });
       
+      if (!response || !response.request_id) {
+        throw new Error('Invalid response from API: missing request_id');
+      }
+      
       const newExtraction: Extraction = {
         id: response.request_id,
-        status: response.status,
+        status: response.status || 'pending',
         title: title || 'Untitled Extraction',
         timestamp: new Date(),
       };
@@ -129,6 +137,11 @@ export const ExtractionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   
   const refreshStatus = useCallback(async (id: string) => {
     try {
+      if (!id) {
+        console.error('Invalid extraction ID for status refresh');
+        return;
+      }
+      
       const response = await apiService.checkStatus(id);
       
       setExtractions(prev => 
@@ -136,13 +149,23 @@ export const ExtractionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           ext.id === id 
             ? { 
                 ...ext, 
-                status: response.status, 
+                status: response.status || ext.status, 
                 content: response.content || ext.content,
                 error: response.error || ext.error
               } 
             : ext
         )
       );
+      
+      // Update selected extraction if it's the one we're refreshing
+      if (selectedExtraction && selectedExtraction.id === id) {
+        setSelectedExtraction(prev => prev ? {
+          ...prev,
+          status: response.status || prev.status,
+          content: response.content || prev.content,
+          error: response.error || prev.error
+        } : null);
+      }
       
       // If status is no longer pending, stop polling
       if (response.status !== 'pending') {
@@ -152,7 +175,7 @@ export const ExtractionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     } catch (error) {
       console.error('Failed to refresh extraction status:', error);
     }
-  }, [stopPolling]);
+  }, [stopPolling, selectedExtraction]);
   
   const clearExtractions = useCallback(() => {
     // Stop all polling

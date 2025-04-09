@@ -30,12 +30,17 @@ const ContentView = ({ content }: ContentViewProps) => {
     return <ExtractionView />;
   }
   
+  // Otherwise show the extraction list if no content is provided
+  if (!content) {
+    return <ExtractionList />;
+  }
+
   const copyContent = () => {
     if (!content) return;
     
     const textToCopy = showMarkdown && content.formattedContent 
       ? content.formattedContent 
-      : `${content.title}\n\nSource: ${content.url}\n\n${content.content}`;
+      : `${content.title || ''}\n\nSource: ${content.url || ''}\n\n${content.content || ''}`;
       
     navigator.clipboard.writeText(textToCopy);
     
@@ -50,7 +55,7 @@ const ContentView = ({ content }: ContentViewProps) => {
     
     const textToDownload = showMarkdown && content.formattedContent 
       ? content.formattedContent 
-      : `${content.title}\n\nSource: ${content.url}\n\n${content.content}`;
+      : `${content.title || ''}\n\nSource: ${content.url || ''}\n\n${content.content || ''}`;
       
     const blob = new Blob([textToDownload], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -73,15 +78,10 @@ const ContentView = ({ content }: ContentViewProps) => {
     setShowMarkdown(!showMarkdown);
   };
 
-  // Otherwise show the extraction list or content
-  if (!content) {
-    return <ExtractionList />;
-  }
-
   // Determine what content to display
   const displayContent = content.source === 'tiptap' && showMarkdown
-    ? content.formattedContent || content.content
-    : content.content;
+    ? content.formattedContent || content.content || ''
+    : content.content || '';
 
   return (
     <Card className="h-full flex flex-col">

@@ -4,12 +4,17 @@ import { useExtraction } from '@/contexts/ExtractionContext';
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Clock, CheckCircle, AlertCircle, Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ExtractionList: React.FC = () => {
   const { extractions, setSelectedExtraction, clearExtractions } = useExtraction();
+
+  const handleExtractionClick = (extraction: any) => {
+    if (extraction.status === 'done') {
+      setSelectedExtraction(extraction);
+    }
+  };
 
   if (extractions.length === 0) {
     return (
@@ -51,7 +56,7 @@ const ExtractionList: React.FC = () => {
                   extraction.status === 'done' ? 'hover:border-secondary hover:bg-secondary/10' : '',
                   extraction.status === 'failed' ? 'hover:border-destructive hover:bg-destructive/10' : ''
                 )}
-                onClick={() => extraction.status === 'done' ? setSelectedExtraction(extraction) : null}
+                onClick={() => handleExtractionClick(extraction)}
                 disabled={extraction.status === 'pending'}
               >
                 <div className="flex items-start gap-2 w-full">
@@ -69,9 +74,9 @@ const ExtractionList: React.FC = () => {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-xs truncate">{extraction.title}</div>
+                    <div className="font-medium text-xs truncate">{extraction.title || 'Untitled'}</div>
                     <div className="text-xs text-muted-foreground">
-                      {new Date(extraction.timestamp).toLocaleTimeString()}
+                      {extraction.timestamp ? new Date(extraction.timestamp).toLocaleTimeString() : '--:--'}
                     </div>
                     {extraction.status === 'pending' && (
                       <div className="w-full bg-muted rounded-full h-1 mt-2 overflow-hidden">
